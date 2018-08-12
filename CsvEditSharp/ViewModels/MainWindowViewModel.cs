@@ -362,6 +362,7 @@ namespace CsvEditSharp.ViewModels
         private void ResetQuery()
         {
             _host.ResetQuery();
+			_errorMessages.Clear();
             CsvRows = new ObservableCollection<object>(_host.Records);
         }
 

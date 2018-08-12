@@ -6,46 +6,49 @@ using System.Windows.Data;
 
 namespace CsvEditSharp.Bindings
 {
-    public class DataGridColumnConverter : IValueConverter
-    {
+	public class DataGridColumnConverter : IValueConverter
+	{
 
-        private ITypeConverter typeConverter;
-        private TypeConverterOptions converterOptions;
+		private ITypeConverter typeConverter;
+		private TypeConverterOptions converterOptions;
 
-        public string HeaderName { get; }
-        
-        public DataGridColumnConverter(string headerName, ITypeConverter converter, TypeConverterOptions options)
-        {
-            typeConverter = converter ?? new DefaultTypeConverter();
-            converterOptions = options ?? new TypeConverterOptions();
-            HeaderName = headerName;
-        }
+		public string HeaderName { get; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType != typeof(string)) { return value; }
-            try
-            {
-                return typeConverter.ConvertToString(converterOptions, value);
-            }
-            catch
-            {
-                return DependencyProperty.UnsetValue;
-            }
-        }
+		public DataGridColumnConverter( string headerName, ITypeConverter converter, TypeConverterOptions options )
+		{
+			typeConverter = converter ?? new DefaultTypeConverter();
+			converterOptions = options ?? new TypeConverterOptions();
+			HeaderName = headerName.Replace( "_", "__" );
+		}
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var oldValue = value as string;
-            if (oldValue == null) { return value; }
-            try
-            {
-                return typeConverter.ConvertFromString(converterOptions, oldValue);
-            }
-            catch
-            {
-                return DependencyProperty.UnsetValue;
-            }
-        }
-    }
+		public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
+		{
+			if ( targetType != typeof( string ) ) { return value; }
+			try
+			{
+				return typeConverter.ConvertToString( converterOptions, value );
+			}
+			catch
+			{
+				return DependencyProperty.UnsetValue;
+			}
+		}
+
+		public object ConvertBack( object value, Type targetType, object parameter, CultureInfo culture )
+		{
+			string oldValue = value as string;
+
+			if ( string.IsNullOrEmpty( oldValue ) )
+				return value;
+
+			try
+			{
+				return typeConverter.ConvertFromString( converterOptions, oldValue );
+			}
+			catch
+			{
+				return DependencyProperty.UnsetValue;
+			}
+		}
+	}
 }
