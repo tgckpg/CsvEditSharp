@@ -31,15 +31,16 @@ namespace CsvEditSharp.ViewModels
         private string _currentConfigName;
         private string _selectedTemplate;
 
-        private ICommand _readCsvCommand;
-        private ICommand _queryCommand;
-        private ICommand _writeCsvCommand;
+        private ICommand _readCsvCmd;
+        private ICommand _queryCmd;
+        private ICommand _writeCsvCmd;
+        private ICommand _writeNewCsvCmd;
         private ICommand _runConfigComannd;
-        private ICommand _resetQueryCommand;
-        private ICommand _saveConfigCommand;
-        private ICommand _saveConfigAsCommand;
-        private ICommand _configSettingsCommand;
-        private ICommand _deleteTemplateCommand;
+        private ICommand _resetQueryCmd;
+        private ICommand _saveConfigCmd;
+        private ICommand _saveConfigAsCmd;
+        private ICommand _configSettingsCmd;
+        private ICommand _deleteTemplateCmd;
 
         private CsvEditSharpWorkspace Workspace { get; }
 
@@ -116,11 +117,11 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_readCsvCommand == null)
+                if (_readCsvCmd == null)
                 {
-                    _readCsvCommand = new DelegateCommand(_ => ReadCsvAsync());
+                    _readCsvCmd = new DelegateCommand(_ => ReadCsvAsync());
                 }
-                return _readCsvCommand;
+                return _readCsvCmd;
             }
         }
 
@@ -128,11 +129,23 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_writeCsvCommand == null)
+                if (_writeCsvCmd == null)
                 {
-                    _writeCsvCommand = new DelegateCommand(_ => WriteCsv(), _ => (CsvRows?.Count ?? 0) > 0);
+                    _writeCsvCmd = new DelegateCommand(_ => WriteCsv(), _ => (CsvRows?.Count ?? 0) > 0);
                 }
-                return _writeCsvCommand;
+                return _writeCsvCmd;
+            }
+        }
+
+        public ICommand WriteNewCsvCommand
+        {
+            get
+            {
+                if (_writeNewCsvCmd == null)
+                {
+                    _writeNewCsvCmd = new DelegateCommand(_ => WriteNewCsv(), _ => (CsvRows?.Count ?? 0) > 0);
+                }
+                return _writeNewCsvCmd;
             }
         }
 
@@ -140,11 +153,11 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_queryCommand == null)
+                if (_queryCmd == null)
                 {
-                    _queryCommand = new DelegateCommand(async _ => await ExecuteQueryAsync(), _ => Workspace.HasScriptState);
+                    _queryCmd = new DelegateCommand(async _ => await ExecuteQueryAsync(), _ => Workspace.HasScriptState);
                 }
-                return _queryCommand;
+                return _queryCmd;
             }
         }
 
@@ -152,11 +165,11 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_resetQueryCommand == null)
+                if (_resetQueryCmd == null)
                 {
-                    _resetQueryCommand = new DelegateCommand(_ => ResetQuery(), _ => Workspace.HasScriptState);
+                    _resetQueryCmd = new DelegateCommand(_ => ResetQuery(), _ => Workspace.HasScriptState);
                 }
-                return _resetQueryCommand;
+                return _resetQueryCmd;
             }
         }
 
@@ -176,12 +189,12 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_saveConfigCommand == null)
+                if (_saveConfigCmd == null)
                 {
-                    _saveConfigCommand = new DelegateCommand(_ => SaveConfigFile(), _ => !string.IsNullOrWhiteSpace(ConfigurationDoc.Text)
+                    _saveConfigCmd = new DelegateCommand(_ => SaveConfigFile(), _ => !string.IsNullOrWhiteSpace(ConfigurationDoc.Text)
                         && File.Exists(CsvConfigFileManager.Default.CurrentConfigFilePath));
                 }
-                return _saveConfigCommand;
+                return _saveConfigCmd;
             }
         }
 
@@ -189,12 +202,12 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_saveConfigAsCommand == null)
+                if (_saveConfigAsCmd == null)
                 {
-                    _saveConfigAsCommand = new DelegateCommand(_ => SaveConfigAs(), _ => !string.IsNullOrWhiteSpace(ConfigurationDoc.Text)
+                    _saveConfigAsCmd = new DelegateCommand(_ => SaveConfigAs(), _ => !string.IsNullOrWhiteSpace(ConfigurationDoc.Text)
                         && File.Exists(CsvConfigFileManager.Default.CurrentConfigFilePath));
                 }
-                return _saveConfigAsCommand;
+                return _saveConfigAsCmd;
             }
         }
 
@@ -202,11 +215,11 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_configSettingsCommand == null)
+                if (_configSettingsCmd == null)
                 {
-                    _configSettingsCommand = new DelegateCommand(_ => _viewService.ConfigSettingsDialogService.ShowModal(), _ => true);
+                    _configSettingsCmd = new DelegateCommand(_ => _viewService.ConfigSettingsDialogService.ShowModal(), _ => true);
                 }
-                return _configSettingsCommand;
+                return _configSettingsCmd;
             }
         }
 
@@ -214,12 +227,12 @@ namespace CsvEditSharp.ViewModels
         {
             get
             {
-                if (_deleteTemplateCommand == null)
+                if (_deleteTemplateCmd == null)
                 {
-                    _deleteTemplateCommand = new DelegateCommand(_ => CsvConfigFileManager.Default.RemoveConfigFile(SelectedTemplate),
+                    _deleteTemplateCmd = new DelegateCommand(_ => CsvConfigFileManager.Default.RemoveConfigFile(SelectedTemplate),
                         _ => !string.IsNullOrEmpty(SelectedTemplate));
                 }
-                return _deleteTemplateCommand;
+                return _deleteTemplateCmd;
             }
         }
 
@@ -298,6 +311,21 @@ namespace CsvEditSharp.ViewModels
         }
 
         private void WriteCsv()
+        {
+            try
+            {
+                using (var writer = new StreamWriter(_currentFilePath, false, _host.Encoding))
+                {
+                    _host.Write(writer, CsvRows);
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorMessages.Add(e.ToString());
+            }
+        }
+
+        private void WriteNewCsv()
         {
             var saveFileService = _viewService.SaveFileSelectionService;
             var fileName = saveFileService.SelectFile("Save As..", CsvFileFilter, _currentFilePath);

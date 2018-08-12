@@ -30,8 +30,9 @@
         <BooleanToVisibilityConverter x:Key="visibilityConverter"/>
     </Window.Resources>
 
-    <Grid Margin="8">
+    <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -41,27 +42,36 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <Menu Grid.Row="0" Grid.ColumnSpan="2">
+            <MenuItem Header="CSV">
+                <MenuItem Command="{Binding ReadCsvCommand}" Header="_Open" />
+                <MenuItem Command="{Binding WriteCsvCommand}" Header="_Save" />
+                <MenuItem Command="{Binding WriteNewCsvCommand}" Header="Save _As ..." />
+            </MenuItem>
+            <MenuItem Header="Config">
+                <MenuItem Command="{Binding RunConfigCommand}" Header="Run" />
+                <MenuItem Command="{Binding SaveConfigCommand}" Header="Save" />
+                <MenuItem Command="{Binding SaveConfigAsCommand}" Header="Save As ..." />
+                <MenuItem Command="{Binding ConfigSettingsCommand}" Header="Settings ..." />
+            </MenuItem>
+        </Menu>
+
         <!-- ToolBar -->
-        <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
+        <ToolBarTray Grid.Row="1" Grid.ColumnSpan="2">
             <ToolBar>
                 <Label Margin="2,0">Configuration Script</Label>
                 <ComboBox Width="160" x:Name="configTemplateComboBox" 
                           ContextMenu="{StaticResource configListContextMenu}"
                           ItemsSource="{Binding ConfigFileTemplates}"
                           SelectedItem="{Binding SelectedTemplate}"/>
-                <Button Command="{Binding ReadCsvCommand}" ToolTip="Open" 
-                        FontFamily="Segoe UI Symbol" FontSize="16" Padding="4">&#xE1A5;</Button>
-                <Separator Margin="2,0"/>
-                <Button Command="{Binding WriteCsvCommand}" ToolTip="Save As" 
-                        FontFamily="Segoe UI Symbol" FontSize="16" Padding="4">&#xE105;</Button>
             </ToolBar>
         </ToolBarTray>
 
-        <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding ErrorMessages}" Margin="4"
+        <ListBox Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding ErrorMessages}" Margin="4"
                  VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Crimson"
                  Visibility="{Binding HasErrorMessages,Converter={StaticResource visibilityConverter}}"/>
 
-        <TabControl Grid.Row="2" SelectedIndex="{Binding SelectedTab}" >
+        <TabControl Grid.Row="3" SelectedIndex="{Binding SelectedTab}" >
             <!-- CSV Editor Tab Page -->
             <TabItem Header="{Binding CurrentFileName}" BorderThickness="1" BorderBrush="SteelBlue">
                 <DataGrid Grid.Row="0" AutoGenerateColumns="True" 
@@ -71,7 +81,7 @@
                           ItemsSource="{Binding CsvRows}" />
             </TabItem>
         </TabControl>
-        <TabControl Grid.Row="2" Grid.Column="1" SelectedIndex="{Binding SelectedTab}" >
+        <TabControl Grid.Row="3" Grid.Column="1" SelectedIndex="{Binding SelectedTab}" >
             <!-- Configuration Settings -->
             <TabItem Header="{Binding CurrentConfigName}" BorderThickness="1" BorderBrush="SteelBlue">
                 <Grid >
@@ -80,22 +90,6 @@
                         <RowDefinition/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-
-                    <ToolBarTray Margin="4,6,2,2">
-                        <ToolBar>
-                            <Button FontFamily="Segoe UI Symbol" Padding="4,2" 
-                                    HorizontalAlignment="Left" Command="{Binding RunConfigCommand}">&#xE102; Run</Button>
-                            <Separator/>
-                            <Button FontFamily="Segoe UI Symbol" Padding="4,2" 
-                                    HorizontalAlignment="Left" Command="{Binding SaveConfigCommand}">&#xE105; Save</Button>
-                            <Button FontFamily="Segoe UI Symbol" Padding="4,2" 
-                                    HorizontalAlignment="Left" Command="{Binding SaveConfigAsCommand}">&#xE105; Save As..</Button>
-                            <Separator/>
-                            <Button FontFamily="Segoe UI Symbol" Padding="4,2"
-                                    HorizontalAlignment="Left" Command="{Binding ConfigSettingsCommand}">&#xE115; Settings..</Button>
-                        </ToolBar>
-                    </ToolBarTray>
-
                     <avalonEdit:TextEditor Grid.Row="1" x:Name="configEdit"
                             BorderThickness="1" BorderBrush="SteelBlue"
                             Document="{Binding ConfigurationDoc,Mode=TwoWay}"
