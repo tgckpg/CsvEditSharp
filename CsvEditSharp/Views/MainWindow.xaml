@@ -33,12 +33,16 @@
     <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
         <!-- ToolBar -->
-        <ToolBarTray Grid.Row="0">
+        <ToolBarTray Grid.Row="0" Grid.ColumnSpan="2">
             <ToolBar>
                 <Label Margin="2,0">Configuration Script</Label>
                 <ComboBox Width="160" x:Name="configTemplateComboBox" 
@@ -53,47 +57,28 @@
             </ToolBar>
         </ToolBarTray>
 
-        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTab}" >
+        <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding ErrorMessages}" Margin="4"
+                 VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Crimson"
+                 Visibility="{Binding HasErrorMessages,Converter={StaticResource visibilityConverter}}"/>
+
+        <TabControl Grid.Row="2" SelectedIndex="{Binding SelectedTab}" >
             <!-- CSV Editor Tab Page -->
             <TabItem Header="{Binding CurrentFileName}" BorderThickness="1" BorderBrush="SteelBlue">
-                <Grid >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="60"/>
-                    </Grid.RowDefinitions>
-                    <DataGrid Grid.Row="0" AutoGenerateColumns="True" 
-                              AutoGeneratingColumn="DataGrid_AutoGeneratingColumn" 
-                              ItemsSource="{Binding CsvRows}" />
-                    <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="4" ResizeDirection="Rows"/>
-                    <Grid Grid.Row="1" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical">
-                            <Button FontFamily="Segoe UI Symbol" Margin="4,4,4,2" Padding="4,2" Command="{Binding QueryCommand}">Execute &#xE102;</Button>
-                            <Button FontFamily="Segoe UI Symbol" Margin="4,2,4,4" Padding="4,2" Command="{Binding ResetQueryCommand}">Reset</Button>
-                        </StackPanel>
-                        <avalonEdit:TextEditor Grid.Column="1" x:Name="queryEdit"
-                            HorizontalAlignment="Stretch"
-                            BorderThickness="1" BorderBrush="SteelBlue"
-                            Document="{Binding QueryDoc,Mode=TwoWay}"
-                            SyntaxHighlighting="C#"
-                            ShowLineNumbers="True"
-                            HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                            FontFamily="Consolas" Margin="4"
-                            FontSize="10Pt">
-                        </avalonEdit:TextEditor>
-                    </Grid>
-                </Grid>
+                <DataGrid Grid.Row="0" AutoGenerateColumns="True" 
+                          AutoGeneratingColumn="DataGrid_AutoGeneratingColumn" 
+                          HorizontalGridLinesBrush="#FFAAAAAA"
+                          VerticalGridLinesBrush="#FFAAAAAA"
+                          ItemsSource="{Binding CsvRows}" />
             </TabItem>
-
+        </TabControl>
+        <TabControl Grid.Row="2" Grid.Column="1" SelectedIndex="{Binding SelectedTab}" >
             <!-- Configuration Settings -->
             <TabItem Header="{Binding CurrentConfigName}" BorderThickness="1" BorderBrush="SteelBlue">
                 <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <ToolBarTray Margin="4,6,2,2">
@@ -121,12 +106,28 @@
                             FontSize="10Pt">
                     </avalonEdit:TextEditor>
 
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <Button FontFamily="Segoe UI Symbol" Margin="4,4,4,2" Padding="4,2" Command="{Binding QueryCommand}">Execute &#xE102;</Button>
+                            <Button FontFamily="Segoe UI Symbol" Margin="4,2,4,4" Padding="4,2" Command="{Binding ResetQueryCommand}">Reset</Button>
+                        </StackPanel>
+                        <avalonEdit:TextEditor Grid.Column="1" x:Name="queryEdit"
+                            HorizontalAlignment="Stretch"
+                            BorderThickness="1" BorderBrush="SteelBlue"
+                            Document="{Binding QueryDoc,Mode=TwoWay}"
+                            SyntaxHighlighting="C#"
+                            ShowLineNumbers="True"
+                            HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                            FontFamily="Consolas" Margin="4"
+                            FontSize="10Pt">
+                        </avalonEdit:TextEditor>
+                    </Grid>
                 </Grid>
             </TabItem>
-
         </TabControl>
-        <ListBox Grid.Row="2" ItemsSource="{Binding ErrorMessages}" Margin="4"
-                 VerticalAlignment="Bottom" BorderThickness="1" BorderBrush="Crimson"
-                 Visibility="{Binding HasErrorMessages,Converter={StaticResource visibilityConverter}}"/>
     </Grid>
 </Window>
